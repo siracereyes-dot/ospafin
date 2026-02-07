@@ -3,6 +3,13 @@ import { OSPACandidate } from '../types';
 
 const STORAGE_KEY = 'ospa_candidates';
 
+/**
+ * GOOGLE APPS SCRIPT BRIDGE
+ * Your URL: https://script.google.com/macros/s/AKfycbyar3ji86tD3WubBdAq8aR_zFp-gkzhcyYFtayBuTdFZpoCxpZmyR-7B5Wpbg_9M20D/exec
+ */
+
+const SYNC_URL = 'https://script.google.com/macros/s/AKfycbyar3ji86tD3WubBdAq8aR_zFp-gkzhcyYFtayBuTdFZpoCxpZmyR-7B5Wpbg_9M20D/exec';
+
 export const saveCandidate = (candidate: OSPACandidate) => {
   const candidates = getCandidates();
   const index = candidates.findIndex(c => c.id === candidate.id);
@@ -14,11 +21,6 @@ export const saveCandidate = (candidate: OSPACandidate) => {
   }
   
   localStorage.setItem(STORAGE_KEY, JSON.stringify(candidates));
-  
-  // Note: For actual Google Sheets integration on Vercel:
-  // We would call a serverless function here that uses 'google-spreadsheet'
-  // using credentials from process.env.
-  console.log('Candidate saved successfully to local storage. Ready for Google Sheets syncing.');
 };
 
 export const getCandidates = (): OSPACandidate[] => {
@@ -29,6 +31,31 @@ export const getCandidates = (): OSPACandidate[] => {
 export const deleteCandidate = (id: string) => {
   const candidates = getCandidates().filter(c => c.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(candidates));
+};
+
+export const syncToGoogleSheets = async (candidates: OSPACandidate[]): Promise<boolean> => {
+  if (!SYNC_URL) return false;
+
+  try {
+    // Note: Apps Script Web Apps require no-cors for simple browser POSTs 
+    // to avoid complex CORS preflight issues with redirects.
+    await fetch(SYNC_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(candidates),
+    });
+    
+    localStorage.setItem('ospa_last_sync', new Date().toISOString());
+    return true;
+  } catch (error) {
+    console.error('Sync failed:', error);
+    return false;
+  }
+};
+
+export const getLastSync = (): string | null => {
+  return localStorage.getItem('ospa_last_sync');
 };
 
 export const exportToCSV = (candidates: OSPACandidate[]) => {
@@ -46,7 +73,7 @@ export const exportToCSV = (candidates: OSPACandidate[]) => {
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");
   link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "ospa_candidates_export.csv");
+  link.setAttribute("download", `ospa_export_${new Date().toISOString().split('T')[0]}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

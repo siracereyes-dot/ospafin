@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import CandidateList from './components/CandidateList';
 import OSPAScoringForm from './components/OSPAScoringForm';
@@ -33,18 +34,30 @@ const App: React.FC = () => {
     setView('form');
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this candidate?')) {
       storage.deleteCandidate(id);
-      setCandidates(storage.getCandidates());
+      const updated = storage.getCandidates();
+      setCandidates(updated);
+      // Update cloud after deletion
+      await storage.syncToGoogleSheets(updated);
     }
   };
 
-  const handleSave = (candidate: OSPACandidate) => {
+  const handleSave = async (candidate: OSPACandidate) => {
+    // 1. Save locally for instant UI update
     storage.saveCandidate(candidate);
-    setCandidates(storage.getCandidates());
+    const updatedCandidates = storage.getCandidates();
+    setCandidates(updatedCandidates);
     setView('list');
     setEditingCandidate(undefined);
+    
+    // 2. Trigger background sync to Google Sheets
+    try {
+      await storage.syncToGoogleSheets(updatedCandidates);
+    } catch (err) {
+      console.warn("Cloud sync deferred - saved locally.");
+    }
   };
 
   return (
