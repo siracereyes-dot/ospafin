@@ -12,7 +12,7 @@ const SplashScreen: React.FC = () => {
         <div className="relative mb-8">
           <div className="absolute inset-0 bg-indigo-500/10 rounded-full blur-2xl animate-ping opacity-20"></div>
           <img 
-            src="https://i.ibb.co/hxvXvtpJ/image.png" 
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9A5rNpllgwPRmxnmivFoeU4z-9XGBm8yK5Q&s" 
             alt="DepEd Logo" 
             referrerPolicy="no-referrer"
             className="h-32 w-auto object-contain relative z-10"

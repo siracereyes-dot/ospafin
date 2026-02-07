@@ -206,7 +206,7 @@ const OSPAScoringForm: React.FC<Props> = ({ candidate, onSave, onCancel }) => {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
               </button>
               <img 
-                src="https://i.ibb.co/hxvXvtpJ/image.png" 
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9A5rNpllgwPRmxnmivFoeU4z-9XGBm8yK5Q&s" 
                 alt="Logo" 
                 referrerPolicy="no-referrer"
                 className="h-10 w-auto object-contain" 

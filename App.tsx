@@ -57,7 +57,7 @@ const App: React.FC = () => {
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center gap-3">
                 <img 
-                  src="https://i.ibb.co/hxvXvtpJ/image.png" 
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9A5rNpllgwPRmxnmivFoeU4z-9XGBm8yK5Q&s" 
                   alt="Logo" 
                   referrerPolicy="no-referrer"
                   className="h-10 w-auto object-contain"
