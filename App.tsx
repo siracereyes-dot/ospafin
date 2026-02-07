@@ -1,63 +1,44 @@
 
 import React, { useState, useEffect } from 'react';
-import CandidateList from './components/CandidateList';
 import OSPAScoringForm from './components/OSPAScoringForm';
 import SplashScreen from './components/SplashScreen';
 import { OSPACandidate } from './types';
 import * as storage from './services/storage';
 
 const App: React.FC = () => {
-  const [candidates, setCandidates] = useState<OSPACandidate[]>([]);
-  const [view, setView] = useState<'list' | 'form'>('list');
-  const [editingCandidate, setEditingCandidate] = useState<OSPACandidate | undefined>(undefined);
   const [isSplashActive, setIsSplashActive] = useState(true);
+  const [isSaved, setIsSaved] = useState(false);
+  const [syncError, setSyncError] = useState(false);
 
   useEffect(() => {
-    // Load data from storage
-    setCandidates(storage.getCandidates());
-
-    // Flash screen duration
     const timer = setTimeout(() => {
       setIsSplashActive(false);
     }, 2500);
-
     return () => clearTimeout(timer);
   }, []);
 
-  const handleAddNew = () => {
-    setEditingCandidate(undefined);
-    setView('form');
-  };
-
-  const handleEdit = (candidate: OSPACandidate) => {
-    setEditingCandidate(candidate);
-    setView('form');
-  };
-
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this candidate?')) {
-      storage.deleteCandidate(id);
-      const updated = storage.getCandidates();
-      setCandidates(updated);
-      // Update cloud after deletion
-      await storage.syncToGoogleSheets(updated);
-    }
-  };
-
   const handleSave = async (candidate: OSPACandidate) => {
-    // 1. Save locally for instant UI update
-    storage.saveCandidate(candidate);
-    const updatedCandidates = storage.getCandidates();
-    setCandidates(updatedCandidates);
-    setView('list');
-    setEditingCandidate(undefined);
+    setSyncError(false);
     
-    // 2. Trigger background sync to Google Sheets
-    try {
-      await storage.syncToGoogleSheets(updatedCandidates);
-    } catch (err) {
-      console.warn("Cloud sync deferred - saved locally.");
+    // 1. Save locally for backup
+    storage.saveCandidate(candidate);
+    
+    // 2. Sync to Cloud (Google Sheets)
+    // We send the current candidate for direct appending to the database
+    const success = await storage.syncToGoogleSheets(candidate);
+    
+    if (success) {
+      setIsSaved(true);
+    } else {
+      setSyncError(true);
+      // Even if cloud fails, we show "saved" locally but notify user
+      setIsSaved(true); 
     }
+  };
+
+  const handleNewNomination = () => {
+    setIsSaved(false);
+    setSyncError(false);
   };
 
   return (
@@ -80,38 +61,52 @@ const App: React.FC = () => {
                 </h1>
               </div>
               
-              <nav className="flex items-center space-x-6">
-                 <button 
-                  onClick={() => setView('list')} 
-                  className={`text-sm font-bold transition-colors ${view === 'list' ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
-                >
-                  DepEd NCR
-                </button>
-              </nav>
+              <div className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${syncError ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  {syncError ? 'Sync Deferred' : 'Database Connected'}
+                </span>
+              </div>
             </div>
           </div>
         </header>
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          {view === 'list' ? (
-            <CandidateList 
-              candidates={candidates} 
-              onEdit={handleEdit} 
-              onDelete={handleDelete} 
-              onAddNew={handleAddNew} 
-            />
+          {isSaved ? (
+            <div className="max-w-xl mx-auto mt-20 text-center space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+              <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto shadow-inner border ${syncError ? 'bg-amber-50 text-amber-500 border-amber-100' : 'bg-emerald-50 text-emerald-500 border-emerald-100'}`}>
+                {syncError ? (
+                   <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                ) : (
+                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                )}
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-3xl font-black text-slate-900">{syncError ? 'Saved Locally' : 'Assessment Synced'}</h2>
+                <p className="text-slate-500 font-medium">
+                  {syncError 
+                    ? "Data stored on this device. Please check your internet or Google Apps Script deployment to sync to the Cloud." 
+                    : "The nomination data has been successfully pushed to the Google Sheet (ospa)."}
+                </p>
+              </div>
+              <button 
+                onClick={handleNewNomination}
+                className="bg-slate-900 text-white px-10 py-5 rounded-[1.8rem] font-black shadow-2xl hover:bg-indigo-600 transition-all active:scale-95 text-sm uppercase tracking-widest"
+              >
+                Start New Nomination
+              </button>
+            </div>
           ) : (
             <OSPAScoringForm 
-              candidate={editingCandidate} 
               onSave={handleSave} 
-              onCancel={() => setView('list')} 
+              onCancel={() => {}} 
             />
           )}
         </main>
 
         <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-200 text-center">
           <p className="text-slate-400 text-sm font-medium">
-            Official OSPA Scoring Tool • Accumulative Point Registry
+            Official OSPA Scoring Tool • Spreadsheet ID: 1hnk...EEXBFw
           </p>
         </footer>
       </div>
