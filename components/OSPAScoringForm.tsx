@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { OSPACandidate, Level, Rank, Instance } from '../types';
 import { calculateOSPAInstance } from '../constants';
@@ -206,6 +205,7 @@ const OSPAScoringForm: React.FC<Props> = ({ candidate, onSave, onCancel }) => {
               <button type="button" onClick={onCancel} className="p-4 hover:bg-slate-100 rounded-[1.5rem] text-slate-400 transition-all active:scale-90">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
               </button>
+              <img src="https://i.ibb.co/hxvXvtpJ/image.png" alt="Logo" className="h-10 w-auto object-contain" />
               <div>
                 <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none">OSPA Scorer</h2>
                 <p className="text-xs text-indigo-600 font-black uppercase tracking-[0.2em] mt-1.5">ANNEX J: SCHOOL PAPER ADVISER</p>

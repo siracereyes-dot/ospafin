@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import CandidateList from './components/CandidateList';
 import OSPAScoringForm from './components/OSPAScoringForm';
@@ -43,19 +42,24 @@ const App: React.FC = () => {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <div className="bg-indigo-600 p-2 rounded-lg">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <h1 className="text-xl font-black text-slate-900 tracking-tight">OSPA <span className="text-indigo-600 font-medium">Scorer</span></h1>
-              </div>
+            <div className="flex items-center gap-3">
+              <img 
+                src="https://i.ibb.co/hxvXvtpJ/image.png" 
+                alt="Logo" 
+                className="h-10 w-auto object-contain"
+              />
+              <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center">
+                OSPA <span className="text-indigo-600 font-medium ml-1">Scorer</span>
+              </h1>
             </div>
             
             <nav className="flex items-center space-x-6">
-               <button onClick={() => setView('list')} className={`text-sm font-bold ${view === 'list' ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}>DepEd NCR</button>
+               <button 
+                onClick={() => setView('list')} 
+                className={`text-sm font-bold transition-colors ${view === 'list' ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+              >
+                DepEd NCR
+              </button>
             </nav>
           </div>
         </div>
