@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const SplashScreen: React.FC = () => {
@@ -15,6 +14,7 @@ const SplashScreen: React.FC = () => {
           <img 
             src="https://i.ibb.co/hxvXvtpJ/image.png" 
             alt="DepEd Logo" 
+            referrerPolicy="no-referrer"
             className="h-32 w-auto object-contain relative z-10"
           />
         </div>

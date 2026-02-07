@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import CandidateList from './components/CandidateList';
 import OSPAScoringForm from './components/OSPAScoringForm';
@@ -60,6 +59,7 @@ const App: React.FC = () => {
                 <img 
                   src="https://i.ibb.co/hxvXvtpJ/image.png" 
                   alt="Logo" 
+                  referrerPolicy="no-referrer"
                   className="h-10 w-auto object-contain"
                 />
                 <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center">
