@@ -23,15 +23,14 @@ const App: React.FC = () => {
     // 1. Save locally for backup
     storage.saveCandidate(candidate);
     
-    // 2. Sync to Cloud (Google Sheets)
-    // We send the current candidate for direct appending to the database
+    // 2. Sync to Cloud (Google Sheets) via the API link
     const success = await storage.syncToGoogleSheets(candidate);
     
     if (success) {
       setIsSaved(true);
     } else {
       setSyncError(true);
-      // Even if cloud fails, we show "saved" locally but notify user
+      // Data is still in local storage if sync fails
       setIsSaved(true); 
     }
   };
@@ -64,7 +63,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${syncError ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  {syncError ? 'Sync Deferred' : 'Database Connected'}
+                  {syncError ? 'Sync Offline' : 'Cloud Database Active'}
                 </span>
               </div>
             </div>
@@ -82,11 +81,11 @@ const App: React.FC = () => {
                 )}
               </div>
               <div className="space-y-2">
-                <h2 className="text-3xl font-black text-slate-900">{syncError ? 'Saved Locally' : 'Assessment Synced'}</h2>
+                <h2 className="text-3xl font-black text-slate-900">{syncError ? 'Saved Locally' : 'Entry Recorded'}</h2>
                 <p className="text-slate-500 font-medium">
                   {syncError 
-                    ? "Data stored on this device. Please check your internet or Google Apps Script deployment to sync to the Cloud." 
-                    : "The nomination data has been successfully pushed to the Google Sheet (ospa)."}
+                    ? "The assessment is stored locally on this device. Cloud sync was deferred." 
+                    : "The nomination data has been successfully pushed to the 'database' sheet via OSPA API."}
                 </p>
               </div>
               <button 
@@ -106,7 +105,7 @@ const App: React.FC = () => {
 
         <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-200 text-center">
           <p className="text-slate-400 text-sm font-medium">
-            Official OSPA Scoring Tool • Spreadsheet ID: 1hnk...EEXBFw
+            Official OSPA Scoring Tool • Spreadsheet ID: 1B4cEi...Prgk
           </p>
         </footer>
       </div>

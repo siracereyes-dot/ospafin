@@ -31,13 +31,16 @@ export const getCandidates = (): OSPACandidate[] => {
 
 /**
  * Maps the internal candidate object to the Google Sheets structure
+ * defined in the user's provided GAS script.
  */
 const mapCandidateToSheetData = (c: OSPACandidate) => {
+  // Achievements (Journalism Winnings)
   const individual = c.achievements.individual.reduce((s, i) => s + calculateOSPAInstance('INDIVIDUAL', i.level, i.rank), 0);
   const group = c.achievements.group.reduce((s, i) => s + calculateOSPAInstance('GROUP', i.level, i.rank), 0);
   const special = c.achievements.specialAwards.reduce((s, i) => s + calculateOSPAInstance('SPECIAL', i.level, i.rank), 0);
   const pubLead = c.achievements.publication.reduce((s, i) => s + calculateOSPAInstance('PUBLICATION', i.level, i.rank), 0);
   
+  // Professional Services (Split into GAS keys)
   const guildLead = c.professional.leadership.reduce((s, i) => s + calculateOSPAInstance('LEADERSHIP', i.level, undefined, i.type), 0);
   const community = c.professional.extension.reduce((s, i) => s + calculateOSPAInstance('EXTENSION', i.level, undefined, i.type), 0);
   const innovation = c.professional.innovations.reduce((s, i) => s + calculateOSPAInstance('INNOVATIONS', i.level), 0);
@@ -47,6 +50,7 @@ const mapCandidateToSheetData = (c: OSPACandidate) => {
     c.professional.books.reduce((s, i) => s + calculateOSPAInstance('TIERED_SERVICES', i.level), 0) +
     c.professional.articles.reduce((s, i) => s + calculateOSPAInstance('ARTICLES', i.level), 0);
 
+  // Interview
   const interviewTotal = Object.values(c.interview).reduce((s, v) => s + v, 0);
 
   return {
@@ -70,7 +74,6 @@ const mapCandidateToSheetData = (c: OSPACandidate) => {
 
 /**
  * Synchronizes one or more candidates to Google Sheets.
- * Fix: Modified to accept OSPACandidate | OSPACandidate[] to resolve type error in CandidateList.tsx.
  */
 export const syncToGoogleSheets = async (candidateData: OSPACandidate | OSPACandidate[]): Promise<boolean> => {
   if (!SYNC_URL) return false;
@@ -78,14 +81,13 @@ export const syncToGoogleSheets = async (candidateData: OSPACandidate | OSPACand
   try {
     const candidates = Array.isArray(candidateData) ? candidateData : [candidateData];
     
-    // We loop through candidates to sync each one. 
-    // Most Google Apps Script simple append implementations handle one record per POST.
+    // Sync each candidate individually to match the script's appendRow behavior
     for (const candidate of candidates) {
       const payload = mapCandidateToSheetData(candidate);
       
       await fetch(SYNC_URL, {
         method: 'POST',
-        mode: 'no-cors', // Important for Google Apps Script Web Apps to prevent redirect errors
+        mode: 'no-cors', // Essential for GAS Web Apps to handle cross-origin redirects
         headers: {
           'Content-Type': 'text/plain;charset=utf-8',
         },
