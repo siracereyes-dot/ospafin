@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { OSPACandidate, Level, Rank, Instance } from '../types';
 import { calculateOSPAInstance } from '../constants';
@@ -173,8 +174,7 @@ const OSPAScoringForm: React.FC<Props> = ({ candidate, onSave }) => {
 
       <form onSubmit={handleFinalSave} className="space-y-12">
         <div className="sticky top-20 z-40 bg-white/95 backdrop-blur-xl shadow-2xl border border-slate-200 rounded-[2.5rem] p-6 flex flex-wrap justify-between items-center gap-6">
-           <div className="flex items-center gap-5">
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9A5rNpllgwPRmxnmivFoeU4z-9XGBm8yK5Q&s" alt="Logo" referrerPolicy="no-referrer" className="h-10 w-auto object-contain" />
+           <div className="flex items-center">
               <div>
                 <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none">Nomination Form</h2>
                 <p className="text-xs text-indigo-600 font-black uppercase tracking-[0.2em] mt-1.5">Search for Outstanding School Paper Advisers</p>
