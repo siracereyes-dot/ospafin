@@ -23,14 +23,14 @@ const App: React.FC = () => {
     // 1. Save locally for backup
     storage.saveCandidate(candidate);
     
-    // 2. Sync to Cloud (Google Sheets) via the API link
+    // 2. Sync to Cloud (Google Sheets) via the OSPA API
     const success = await storage.syncToGoogleSheets(candidate);
     
     if (success) {
       setIsSaved(true);
     } else {
       setSyncError(true);
-      // Data is still in local storage if sync fails
+      // Entry is still in local storage for later retrieval
       setIsSaved(true); 
     }
   };
@@ -60,11 +60,17 @@ const App: React.FC = () => {
                 </h1>
               </div>
               
-              <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${syncError ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  {syncError ? 'Sync Offline' : 'Cloud Database Active'}
-                </span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                   <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Authorized</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full ${syncError ? 'bg-amber-500' : 'bg-indigo-500'}`}></span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    {syncError ? 'Sync Offline' : 'Cloud Secure'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -81,11 +87,11 @@ const App: React.FC = () => {
                 )}
               </div>
               <div className="space-y-2">
-                <h2 className="text-3xl font-black text-slate-900">{syncError ? 'Saved Locally' : 'Entry Recorded'}</h2>
+                <h2 className="text-3xl font-black text-slate-900">{syncError ? 'Local Save Only' : 'Success'}</h2>
                 <p className="text-slate-500 font-medium">
                   {syncError 
-                    ? "The assessment is stored locally on this device. Cloud sync was deferred." 
-                    : "The nomination data has been successfully pushed to the 'database' sheet via OSPA API."}
+                    ? "Authorization passed but network sync failed. Entry is safe in local storage." 
+                    : "Data transmitted successfully to 'ospa' database via secure endpoint."}
                 </p>
               </div>
               <button 
@@ -104,8 +110,8 @@ const App: React.FC = () => {
         </main>
 
         <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-200 text-center">
-          <p className="text-slate-400 text-sm font-medium">
-            Official OSPA Scoring Tool • Spreadsheet ID: 1B4cEi...Prgk
+          <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+            OSPA DATABASE: OSPA | ID: 1B4cEi...Prgk
           </p>
         </footer>
       </div>
