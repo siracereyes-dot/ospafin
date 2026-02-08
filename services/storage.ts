@@ -32,7 +32,7 @@ export const getCandidates = (): OSPACandidate[] => {
 
 /**
  * Maps the internal candidate object to the JSON structure 
- * expected by the GAS doPost(e) script with authorization.
+ * expected by the GAS doPost(e) script.
  */
 const mapCandidateToSheetData = (c: OSPACandidate) => {
   const individual = c.achievements.individual.reduce((s, i) => s + calculateOSPAInstance('INDIVIDUAL', i.level, i.rank), 0);
@@ -52,7 +52,7 @@ const mapCandidateToSheetData = (c: OSPACandidate) => {
   const interviewTotal = Object.values(c.interview).reduce((s, v) => s + v, 0);
 
   return {
-    authToken: AUTH_TOKEN, // Included for server-side verification
+    authToken: AUTH_TOKEN,
     name: c.name,
     school: c.school,
     division: c.division,
@@ -73,16 +73,23 @@ const mapCandidateToSheetData = (c: OSPACandidate) => {
 
 /**
  * Synchronizes candidates to Google Sheets using a secure POST request.
+ * Note: 'no-cors' is used because GAS Web Apps always return a 302 redirect
+ * which browsers block under standard CORS rules, even though the data is saved.
  */
 export const syncToGoogleSheets = async (candidateData: OSPACandidate | OSPACandidate[]): Promise<boolean> => {
-  if (!SYNC_URL) return false;
+  if (!SYNC_URL) {
+    console.error('No SYNC_URL defined.');
+    return false;
+  }
 
   try {
     const candidates = Array.isArray(candidateData) ? candidateData : [candidateData];
     
     for (const candidate of candidates) {
       const payload = mapCandidateToSheetData(candidate);
+      console.log('Syncing payload to OSPA database:', payload);
       
+      // We use text/plain to avoid CORS pre-flight, GAS reads the body as a raw string
       await fetch(SYNC_URL, {
         method: 'POST',
         mode: 'no-cors', 
@@ -96,7 +103,7 @@ export const syncToGoogleSheets = async (candidateData: OSPACandidate | OSPACand
     localStorage.setItem('ospa_last_sync', new Date().toISOString());
     return true;
   } catch (error) {
-    console.error('Secure sync failed:', error);
+    console.error('Sync failed:', error);
     return false;
   }
 };
@@ -138,7 +145,7 @@ export const exportToCSV = (candidates: OSPACandidate[]) => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.setAttribute('href', url);
-  link.setAttribute('download', `ospa_backup_${new Date().toISOString().split('T')[0]}.csv`);
+  link.setAttribute('download', `ospa_registry_backup.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
